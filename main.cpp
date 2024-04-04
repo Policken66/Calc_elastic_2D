@@ -1,4 +1,5 @@
 #include "m_matrix.hpp"
+#include "parser.hpp"
 
 //Размерность задачи
 int dimension = 2;
@@ -8,16 +9,10 @@ int comp_x = 0;
 int comp_y = 1;
 
 //Координаты узлов элементов
-std::vector<std::vector<double>> nodes_coord = {{0, 0},
-                                                {0.025981, 0.015},
-                                                {0.020981, 0.02366},
-                                                {-0.005, 0.0086603},
-                                                {0.051962, 0.03},
-                                                {0.046962, 0.03866}};
+std::vector<std::vector<double>> nodes_coord = get_nodes_coord("data\\mesh_for_calc.inc");
 
 //Формирование элементов из узлов
-std::vector<std::vector<double>> elements = {{0, 1, 2, 3},
-                                             {1, 4, 5, 2}};
+std::vector<std::vector<int>> elements = get_elements("data\\mesh_for_calc.inc");
 
 //Аббревиатуры для компонентов xi, eta
 int comp_xi = 0;
@@ -277,7 +272,7 @@ std::vector<std::vector<double>> NS_3 = {{5}, {6}};
 
 
 int main() {
-   
+    
     //Вычислим матрицу жесткости
     std::vector<std::vector<double>> K = calc_K(0);
 
@@ -297,5 +292,8 @@ int main() {
     std::vector<std::vector<double>> U = gauss(K, F);
     std::cout << "U = " << std::endl;
     printMatrix(U);
+    
+    
+    //printMatrix(get_elements("data\\example_mesh.inc"));
     return 0;
 }
