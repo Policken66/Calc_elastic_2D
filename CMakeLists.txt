@@ -6,7 +6,7 @@ set(PROJECT_NAME Calc_elastic_2D)
 project(${PROJECT_NAME}) 
 
 #Создание исполняемого файла с именем проекта и указание исходного файла main.cpp
-add_executable(${PROJECT_NAME} src/main.cpp) 
+add_executable(${PROJECT_NAME} src/main.cpp src/parser.hpp src/m_matrix.hpp) 
 
 #Устанавливаем флаги для библиотеки GLFW
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -18,4 +18,7 @@ set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
 add_subdirectory(glfw)
 #Линкуем библиотеку GLFW с проектом
 target_link_libraries(${PROJECT_NAME} glfw)
+
+add_subdirectory(glad)
+target_link_libraries(${PROJECT_NAME} glad)
 
