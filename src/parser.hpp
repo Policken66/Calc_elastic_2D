@@ -2,6 +2,8 @@
 ключеввым словам *NODE и *ELEMENT_SHELL. Описаны две функции: 
 get_nodes_coord -- которая возвращает матрицу содержащую координаты узлов
 get_elements -- которая возвращает матрицу содержащую номера узлов из которых состоит элемент*/
+#pragma once
+
 #include <fstream>
 #include <string>
 #include <sstream>

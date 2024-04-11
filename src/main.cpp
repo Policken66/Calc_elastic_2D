@@ -1,8 +1,21 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include "parser.hpp"
-#include "m_matrix.hpp"
+#include "Renderer/ShaderProgram.hpp"
+#include "Resources/ResourceManager.hpp"
+
+GLfloat point[] = {
+    0.0f,  0.5f,  0.0f,
+    0.5f, -0.5f,  0.0f,
+   -0.5f, -0.5f,  0.0f
+};
+
+GLfloat colors[] = {
+    1.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 0.0f, 1.0f
+};
+
 
 int window_size_X = 640;
 int window_size_Y = 480;
@@ -18,7 +31,7 @@ void glfwKeyCallback(GLFWwindow *window, int key, int scancode, int action, int 
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
 }
-int main(void) {
+int main(int argc, char** argv) {
 
     //Initialize the library
     if(!glfwInit()) {
@@ -53,22 +66,60 @@ int main(void) {
     std::cout << "OpenGL version: " << glGetString(GL_VERSION) << std::endl;
 
     glClearColor(1, 1, 0, 1);
-
-    // Loop until the user closes the window 
-    while (!glfwWindowShouldClose(window))
+    
+    //Добавим облась видимости чтобы ResourceManager удалился раньше, чем контекст OpenGL
     {
-        // Render here 
-        glClear(GL_COLOR_BUFFER_BIT);
+        //Передаем путь к exe-файлу
+        ResourceManager resourceManager(argv[0]);
+        auto pDefaultShaderProgram = resourceManager.loadShaders("DefaultShader", "res/shaders/vertex.txt", "res/shaders/fragment.txt");
+        if(!pDefaultShaderProgram) {
+            std::cerr << "Can't create shader program" << "DefaultShader" <<std::endl;
+            return -1;
+        }
 
-        // Swap front and back buffers 
-        glfwSwapBuffers(window);
+        GLuint points_vbo = 0;
+        glGenBuffers(1, &points_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(point), point, GL_STATIC_DRAW);
 
-        // Poll for and process events 
-        glfwPollEvents();
+        GLuint colors_vbo = 0;
+        glGenBuffers(1, &colors_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
+
+        GLuint vao = 0;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+
+        // Loop until the user closes the window 
+        while (!glfwWindowShouldClose(window))
+        {
+            // Render here 
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            pDefaultShaderProgram->use();
+            glBindVertexArray(vao); 
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+
+            // Swap front and back buffers 
+            glfwSwapBuffers(window);
+
+            // Poll for and process events 
+            glfwPollEvents();
+        }
     }
 
     glfwTerminate();
 
-    printMatrix(get_nodes_coord("C:\\Projects\\Calc_elastic_2D\\src\\data\\mesh_for_calc.inc"));
+    //printMatrix(get_nodes_coord("C:\\Projects\\Calc_elastic_2D\\src\\data\\mesh_for_calc.inc"));
     return 0;
 }
